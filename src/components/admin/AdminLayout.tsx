@@ -42,9 +42,37 @@ export const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-[#0a0a0a] text-white font-sans">
-      {/* Admin Sidebar */}
-      <aside className="w-64 border-r border-white/5 bg-[#050505] flex flex-col">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#0a0a0a] text-white font-sans pb-safe">
+      {/* Admin Mobile Top Header */}
+      <div className="md:hidden flex items-center justify-between px-4 h-16 border-b border-white/5 bg-[#050505]">
+        <Link to="/" className="font-display text-xl tracking-widest text-akira-primary flex items-center gap-2">
+          AKIRA <span className="text-[9px] font-mono text-akira-muted uppercase border border-white/10 px-1 py-0.5 rounded">Admin</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+        </div>
+      </div>
+
+      {/* Admin Horizontal Nav (Mobile) */}
+      <nav className="md:hidden flex overflow-x-auto hide-scrollbar border-b border-white/5 bg-[#050505] sticky top-0 z-40 p-2 gap-2">
+         {adminNav.map((nav) => (
+            <Link
+              key={nav.name}
+              to={nav.path}
+              className={`flex-none flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-xs font-medium ${
+                location.pathname.startsWith(nav.path) 
+                  ? 'bg-akira-primary/10 text-akira-primary border border-akira-primary/20' 
+                  : 'text-akira-muted bg-white/5'
+              }`}
+            >
+              {React.cloneElement(nav.icon as React.ReactElement, { className: 'w-4 h-4' })}
+              {nav.name}
+            </Link>
+          ))}
+      </nav>
+
+      {/* Admin Sidebar (Desktop) */}
+      <aside className="hidden md:flex w-64 border-r border-white/5 bg-[#050505] flex-col h-screen sticky top-0">
         <div className="h-20 flex items-center px-8 border-b border-white/5">
           <Link to="/" className="font-display text-2xl tracking-widest text-akira-primary group flex items-center gap-2">
             AKIRA
@@ -91,9 +119,9 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Admin Content Area */}
-      <main className="flex-1 overflow-y-auto bg-[#0a0a0a]">
-        <header className="h-20 flex items-center px-8 border-b border-white/5 justify-between">
-          <h2 className="font-display text-xl tracking-widest text-white uppercase hidden md:block">
+      <main className="flex-1 overflow-y-auto bg-[#0a0a0a] min-h-screen">
+        <header className="hidden md:flex h-20 items-center px-8 border-b border-white/5 justify-between sticky top-0 bg-[#0a0a0a]/90 backdrop-blur z-30">
+          <h2 className="font-display text-xl tracking-widest text-white uppercase">
             {adminNav.find(n => location.pathname.startsWith(n.path))?.name || 'Workspace'}
           </h2>
           <div className="flex items-center gap-4">
@@ -103,7 +131,7 @@ export const AdminLayout: React.FC = () => {
             </div>
           </div>
         </header>
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           <Outlet />
         </div>
       </main>

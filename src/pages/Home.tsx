@@ -7,10 +7,10 @@ export const Home = () => {
   const featuredAnime = MOCK_ANIMES[0];
 
   return (
-    <div className="bg-akira-dark overflow-hidden flex flex-col pt-12">
+    <div className="bg-akira-dark flex flex-col min-h-screen">
       <Hero anime={featuredAnime} />
       
-      <div className="relative z-20 pb-24 mt-4 space-y-2">
+      <div className="relative z-20 pb-24 md:mt-4 space-y-4 md:space-y-2">
         <ContentRail 
           collection={{ id: 'continue', title: 'Continue Your Journey', description: '', animes: MOCK_ANIMES.slice(0,4) }} 
           variant="continue" 

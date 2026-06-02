@@ -21,7 +21,7 @@ export const ContentRail: React.FC<ContentRailProps> = ({ collection, variant = 
           </div>
           
           {variant !== 'universe' && variant !== 'mood' ? (
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <button className="w-8 h-8 rounded-full border border-akira-border flex items-center justify-center text-akira-muted hover:text-white hover:bg-white/5 transition-colors">
                  <ChevronLeft className="w-4 h-4" />
               </button>
