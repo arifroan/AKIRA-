@@ -1,1 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;700&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  --font-heading: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  --color-akira-dark: #09090b;
+  --color-akira-card: #141419;
+  --color-akira-panel: #1c1c24;
+  --color-akira-primary: #f23d46;
+  --color-akira-primary-hover: #d23139;
+  --color-akira-text: #f8fafc;
+  --color-akira-muted: #94a3b8;
+  --color-akira-border: #27272a;
+  
+  --color-background: var(--color-akira-dark);
+  --color-foreground: var(--color-akira-text);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    @apply font-sans antialiased selection:bg-akira-primary/30 selection:text-white overflow-x-hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.mask-gradient-hero {
+  mask-image: linear-gradient(to top, transparent 0%, black 30%, black 100%);
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, black 30%, black 100%);
+}
