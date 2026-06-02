@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "createdAt": { "type": "number", "description": "Timestamp" }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "Anime": {
+      "title": "Anime",
+      "description": "Anime Series or Movie",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "bannerImage": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" },
+        "genres": { "type": "array", "items": { "type": "string" } },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["title", "type", "createdAt", "updatedAt"]
+    },
+    "Episode": {
+      "title": "Episode",
+      "description": "An Episode of an Anime",
+      "type": "object",
+      "properties": {
+        "animeId": { "type": "string" },
+        "number": { "type": "number" },
+        "title": { "type": "string" },
+        "thumbnail": { "type": "string" },
+        "duration": { "type": "number" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["animeId", "number", "createdAt", "updatedAt"]
+    },
+    "Source": {
+      "title": "Source",
+      "description": "Media source for an episode or movie",
+      "type": "object",
+      "properties": {
+        "contentId": { "type": "string" },
+        "url": { "type": "string" },
+        "type": { "type": "string" },
+        "isPrimary": { "type": "boolean" },
+        "server": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["contentId", "url", "type", "isPrimary", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile"
+    },
+    "/anime/{animeId}": {
+      "schema": { "$ref": "#/entities/Anime" },
+      "description": "Anime library"
+    },
+    "/episodes/{episodeId}": {
+      "schema": { "$ref": "#/entities/Episode" },
+      "description": "Episodes of anime"
+    },
+    "/sources/{sourceId}": {
+      "schema": { "$ref": "#/entities/Source" },
+      "description": "Media sources"
+    }
+  }
+}

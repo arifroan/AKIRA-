@@ -1,0 +1,6 @@
+{
+  "name": "AKIRA Anime Platform",
+  "description": "A cinematic, premium anime streaming platform experience. Features robust UI with deep atmospheric dark themes, custom navigation, and a powerful simulated admin dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
