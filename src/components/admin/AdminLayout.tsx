@@ -27,12 +27,12 @@ export const AdminLayout: React.FC = () => {
         <ShieldAlert className="w-16 h-16 text-akira-primary mb-6" />
         <h1 className="text-3xl font-display tracking-widest mb-2">RESTRICTED AREA</h1>
         <p className="text-akira-muted mb-8 font-mono">Authentication Required</p>
-        <button 
-          onClick={login}
+        <Link 
+          to="/auth"
           className="bg-akira-primary hover:bg-akira-primary-hover px-8 py-3 rounded text-sm tracking-widest font-bold uppercase transition-colors"
         >
           System Identify
-        </button>
+        </Link>
       </div>
     );
   }

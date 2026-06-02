@@ -8,6 +8,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { Navigation } from './components/Navigation';
 import { Home } from './pages/Home';
 import { Player } from './pages/Player';
+import { Auth } from './pages/Auth';
+import { Profile } from './pages/Profile';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminContent } from './pages/admin/AdminContent';
@@ -17,15 +19,18 @@ const AppContent = () => {
   const location = useLocation();
   const isPlayer = location.pathname.startsWith('/player');
   const isAdmin = location.pathname.startsWith('/admin');
+  const isAuth = location.pathname === '/auth';
 
   return (
-    <div className={`flex relative min-h-screen ${isAdmin ? 'bg-black' : 'bg-akira-dark'}`}>
-      {!isPlayer && !isAdmin && <Navigation />}
+    <div className={`flex relative min-h-screen ${isAdmin || isAuth ? 'bg-black' : 'bg-akira-dark'}`}>
+      {!isPlayer && !isAdmin && !isAuth && <Navigation />}
       
-      <main className={`flex-1 ${!isPlayer && !isAdmin ? 'md:pl-24 pb-20 md:pb-0' : ''}`}>
+      <main className={`flex-1 ${!isPlayer && !isAdmin && !isAuth ? 'md:pl-24 pb-20 md:pb-0' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/player/:id" element={<Player />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/profile" element={<Profile />} />
           
           {/* Admin Routes wrapped in AdminLayout */}
           <Route path="/admin" element={<AdminLayout />}>

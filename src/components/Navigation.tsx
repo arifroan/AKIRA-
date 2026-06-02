@@ -21,7 +21,7 @@ export const Navigation = () => {
     { name: 'Explore', path: '/explore', icon: <Compass className="w-6 h-6" /> },
     { name: 'Search', path: '/search', icon: <Search className="w-6 h-6" /> },
     { name: 'Library', path: '/collection', icon: <BookOpen className="w-6 h-6" /> },
-    { name: 'Profile', path: isAdmin ? '/admin' : '/profile', icon: <Users className="w-6 h-6" /> },
+    { name: 'Profile', path: isAdmin ? '/admin' : (!user ? '/auth' : '/profile'), icon: <Users className="w-6 h-6" /> },
   ];
 
   return (
@@ -66,9 +66,9 @@ export const Navigation = () => {
               <ChevronDown className="hidden md:block w-4 h-4 text-akira-muted group-hover:text-white transition-colors" />
             </Link>
           ) : (
-            <button onClick={login} className="hidden md:block text-sm font-bold tracking-widest uppercase text-white bg-akira-primary hover:bg-akira-primary-hover px-6 py-2 rounded-full transition-colors shadow-lg">
+            <Link to="/auth" className="hidden md:block text-sm font-bold tracking-widest uppercase text-white bg-akira-primary hover:bg-akira-primary-hover px-6 py-2 rounded-full transition-colors shadow-lg">
               Sign In
-            </button>
+            </Link>
           )}
         </div>
       </div>
@@ -130,7 +130,6 @@ export const Navigation = () => {
               <Link 
                 key={link.name}
                 to={link.path}
-                onClick={link.name === 'Profile' && !user ? (e) => { e.preventDefault(); login(); } : undefined}
                 className={`flex flex-col items-center justify-center gap-1 w-full h-full transition-colors ${
                   isActive ? 'text-akira-primary' : 'text-akira-muted hover:text-white'
                 }`}
