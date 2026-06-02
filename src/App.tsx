@@ -25,7 +25,7 @@ const AppContent = () => {
     <div className={`flex relative min-h-screen ${isAdmin || isAuth ? 'bg-black' : 'bg-akira-dark'}`}>
       {!isPlayer && !isAdmin && !isAuth && <Navigation />}
       
-      <main className={`flex-1 ${!isPlayer && !isAdmin && !isAuth ? 'md:pl-24 pb-20 md:pb-0' : ''}`}>
+      <main className={`flex-1 ${!isPlayer && !isAdmin && !isAuth ? 'pt-20' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/player/:id" element={<Player />} />

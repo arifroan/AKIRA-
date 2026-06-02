@@ -45,7 +45,7 @@ export const AdminContent = () => {
                     {anime.title.english || anime.title.romaji}
                   </div>
                   <div className="text-xs text-akira-muted mb-2 font-mono">
-                    {anime.seasonYear || '2024'} • {anime.format}
+                    2024 • {anime.format}
                   </div>
                   <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                     anime.status === 'Ongoing' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 
@@ -88,7 +88,7 @@ export const AdminContent = () => {
                     <img src={anime.coverImage} alt={anime.title.romaji} className="w-10 h-14 object-cover rounded shadow-md" />
                     <div>
                       <div className="font-semibold text-white mb-0.5">{anime.title.english || anime.title.romaji}</div>
-                      <div className="text-xs text-akira-muted">Season {anime.seasonYear || '2024'} • {anime.format}</div>
+                      <div className="text-xs text-akira-muted">Season 2024 • {anime.format}</div>
                     </div>
                   </div>
                 </td>
