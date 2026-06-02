@@ -1,175 +1,73 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // -----------------------------------------------------------------------------
-    // Global Safety Net
-    // -----------------------------------------------------------------------------
     match /{document=**} {
       allow read, write: if false;
     }
-
-    // -----------------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------------
+    
     function isSignedIn() { return request.auth != null; }
-    
-    // Super Admin Identity Guard
-    function isAdmin() { 
-      return isSignedIn() && 
-             request.auth.token.email == "ottus2023@gmail.com" && 
-             request.auth.token.email_verified == true; 
-    }
-    
-    function isValidId(id) { 
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
-    }
-    
+    function isAdmin() { return isSignedIn() && request.auth.token.email == 'ottus2023@gmail.com'; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
-    
-    // -----------------------------------------------------------------------------
-    // Validation Blueprints
-    // -----------------------------------------------------------------------------
-    
-    // User Profile
+
     function isValidUser(data) {
-      return data.keys().hasAll(['email', 'createdAt']) && 
-             data.keys().size() == 2 &&
-             data.email is string && data.email.size() <= 200 &&
-             data.createdAt is number;
-    }
-    
-    // Anime
-    function isValidAnime(data) {
-      let requiredKeys = ['title', 'type', 'createdAt', 'updatedAt'];
-      let isBaseValid = data.keys().hasAll(requiredKeys) &&
-                         data.title is string && data.title.size() <= 200 &&
-                         data.type is string && data.type.size() <= 50 &&
-                         data.createdAt is number &&
-                         data.updatedAt is number;
-                         
-      let hasValidDesc = !('description' in data) || (data.description is string && data.description.size() <= 5000);
-      let hasValidCover = !('coverImage' in data) || (data.coverImage is string && data.coverImage.size() <= 500);
-      let hasValidBanner = !('bannerImage' in data) || (data.bannerImage is string && data.bannerImage.size() <= 500);
-      let hasValidStatus = !('status' in data) || (data.status is string && data.status.size() <= 50);
-      let hasValidGenres = !('genres' in data) || (data.genres is list && data.genres.size() <= 20); // Not verifying items directly but limited size
-      let hasValidCreatedBy = !('createdBy' in data) || (data.createdBy is string && data.createdBy.size() <= 128);
-
-      return isBaseValid && hasValidDesc && hasValidCover && hasValidBanner && hasValidStatus && hasValidGenres && hasValidCreatedBy;
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid == request.auth.uid &&
+             data.email is string && data.email.size() <= 256 &&
+             data.role in ['user', 'super_admin'];
     }
 
-    // Episode
-    function isValidEpisode(data) {
-      let requiredKeys = ['animeId', 'number', 'createdAt', 'updatedAt'];
-      let isBaseValid = data.keys().hasAll(requiredKeys) &&
-                         data.animeId is string && data.animeId.size() <= 128 &&
-                         data.number is number &&
-                         data.createdAt is number &&
-                         data.updatedAt is number;
-                         
-      let hasValidTitle = !('title' in data) || (data.title is string && data.title.size() <= 200);
-      let hasValidThumb = !('thumbnail' in data) || (data.thumbnail is string && data.thumbnail.size() <= 500);
-      let hasValidDuration = !('duration' in data) || (data.duration is number);
-
-      return isBaseValid && hasValidTitle && hasValidThumb && hasValidDuration;
-    }
-    
-    // Source
-    function isValidSource(data) {
-      let requiredKeys = ['contentId', 'url', 'type', 'isPrimary', 'createdAt', 'updatedAt'];
-      let isBaseValid = data.keys().hasAll(requiredKeys) &&
-                         data.contentId is string && data.contentId.size() <= 128 &&
-                         data.url is string && data.url.size() <= 1000 &&
-                         data.type is string && data.type.size() <= 50 &&
-                         data.isPrimary is bool &&
-                         data.createdAt is number &&
-                         data.updatedAt is number;
-                         
-      let hasValidServer = !('server' in data) || (data.server is string && data.server.size() <= 100);
-
-      return isBaseValid && hasValidServer;
-    }
-    
-    // -----------------------------------------------------------------------------
-    // Collections
-    // -----------------------------------------------------------------------------
-    
-    // USERS (Self Managed + Admin readable)
     match /users/{userId} {
-      allow get: if isValidId(userId) && (request.auth.uid == userId || isAdmin());
-      allow list: if isAdmin(); // Admin can fetch all users
-      
-      allow create: if isValidId(userId) && 
-                       request.auth.uid == userId && 
-                       isValidUser(incoming()) && 
-                       incoming().createdAt == request.time.toMillis();
-      
-      allow update: if isValidId(userId) && 
-                       request.auth.uid == userId && 
-                       isValidUser(incoming()) && 
-                       incoming().createdAt == existing().createdAt;
-                       
-      allow delete: if false; // Users can't delete accounts directly from client
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming()) && 
+                    ((request.auth.token.email == 'ottus2023@gmail.com' && incoming().role == 'super_admin') || 
+                     (request.auth.token.email != 'ottus2023@gmail.com' && incoming().role == 'user'));
+      allow update: if (isOwner(userId) && isValidUser(incoming()) && incoming().role == existing().role) || isAdmin();
+      allow delete: if isAdmin();
     }
-    
-    // ANIME (Admin write, public read)
+
     match /anime/{animeId} {
-      // Anyone can read public content
-      allow get: if isValidId(animeId);
-      allow list: if true; // In production this should be constrained by boundaries if needed
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(animeId);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
       
-      allow create: if isValidId(animeId) && 
-                       isAdmin() && 
-                       isValidAnime(incoming()) &&
-                       incoming().createdAt == request.time.toMillis();
-                       
-      allow update: if isValidId(animeId) && 
-                       isAdmin() && 
-                       isValidAnime(incoming()) &&
-                       incoming().createdAt == existing().createdAt &&
-                       incoming().updatedAt == request.time.toMillis();
-                       
-      allow delete: if isValidId(animeId) && isAdmin();
+      match /episodes/{episodeId} {
+        allow read: if true;
+        allow create: if isAdmin() && isValidId(episodeId);
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+        
+        match /sources/{sourceId} {
+          allow read: if true;
+          allow create: if isAdmin() && isValidId(sourceId);
+          allow update: if isAdmin();
+          allow delete: if isAdmin();
+        }
+      }
+      
+      match /sources/{sourceId} {
+        allow read: if true;
+        allow create: if isAdmin() && isValidId(sourceId);
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
     }
-    
-    // EPISODES (Admin write, public read)
-    match /episodes/{episodeId} {
-      allow get: if isValidId(episodeId);
-      allow list: if true;
-      
-      allow create: if isValidId(episodeId) && 
-                       isAdmin() && 
-                       isValidEpisode(incoming()) &&
-                       incoming().createdAt == request.time.toMillis();
-                       
-      allow update: if isValidId(episodeId) && 
-                       isAdmin() && 
-                       isValidEpisode(incoming()) &&
-                       incoming().createdAt == existing().createdAt &&
-                       incoming().updatedAt == request.time.toMillis();
-                       
-      allow delete: if isValidId(episodeId) && isAdmin();
+
+    match /user_actions/{actionId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
-    
-    // SOURCES (Admin write, authenticated read)
-    match /sources/{sourceId} {
-      // Typically sources should be readable by logged-in users to prevent unauthenticated hotlinking
-      allow get: if isValidId(sourceId) && isSignedIn();
-      allow list: if isSignedIn();
-      
-      allow create: if isValidId(sourceId) && 
-                       isAdmin() && 
-                       isValidSource(incoming()) &&
-                       incoming().createdAt == request.time.toMillis();
-                       
-      allow update: if isValidId(sourceId) && 
-                       isAdmin() && 
-                       isValidSource(incoming()) &&
-                       incoming().createdAt == existing().createdAt &&
-                       incoming().updatedAt == request.time.toMillis();
-                       
-      allow delete: if isValidId(sourceId) && isAdmin();
+
+    match /history/{historyId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
   }
 }

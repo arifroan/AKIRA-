@@ -2,79 +2,127 @@
   "entities": {
     "User": {
       "title": "User",
-      "description": "User profile",
+      "description": "A user of the platform",
       "type": "object",
       "properties": {
+        "uid": { "type": "string" },
         "email": { "type": "string" },
-        "createdAt": { "type": "number", "description": "Timestamp" }
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "super_admin"] },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
       },
-      "required": ["email", "createdAt"]
+      "required": ["uid", "email", "role"]
     },
     "Anime": {
       "title": "Anime",
-      "description": "Anime Series or Movie",
+      "description": "An anime series or movie",
       "type": "object",
       "properties": {
+        "id": { "type": "string" },
         "title": { "type": "string" },
         "description": { "type": "string" },
-        "coverImage": { "type": "string" },
-        "bannerImage": { "type": "string" },
-        "type": { "type": "string" },
-        "status": { "type": "string" },
         "genres": { "type": "array", "items": { "type": "string" } },
-        "createdBy": { "type": "string" },
+        "studio": { "type": "string" },
+        "type": { "type": "string", "enum": ["Series", "Movie"] },
+        "releaseDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["Ongoing", "Completed", "Upcoming"] },
+        "posterImage": { "type": "string" },
+        "bannerImage": { "type": "string" },
+        "trailer": { "type": "string" },
         "createdAt": { "type": "number" },
         "updatedAt": { "type": "number" }
       },
-      "required": ["title", "type", "createdAt", "updatedAt"]
+      "required": ["id", "title", "type"]
     },
     "Episode": {
       "title": "Episode",
-      "description": "An Episode of an Anime",
+      "description": "An episode of an anime",
       "type": "object",
       "properties": {
+        "id": { "type": "string" },
         "animeId": { "type": "string" },
         "number": { "type": "number" },
         "title": { "type": "string" },
+        "description": { "type": "string" },
         "thumbnail": { "type": "string" },
-        "duration": { "type": "number" },
         "createdAt": { "type": "number" },
         "updatedAt": { "type": "number" }
       },
-      "required": ["animeId", "number", "createdAt", "updatedAt"]
+      "required": ["id", "animeId", "number"]
     },
     "Source": {
       "title": "Source",
-      "description": "Media source for an episode or movie",
+      "description": "A video source for an episode or movie",
       "type": "object",
       "properties": {
-        "contentId": { "type": "string" },
+        "id": { "type": "string" },
+        "animeId": { "type": "string" },
+        "episodeId": { "type": "string" },
+        "type": { "type": "string", "enum": ["youtube", "hls", "mp4", "direct"] },
         "url": { "type": "string" },
-        "type": { "type": "string" },
+        "label": { "type": "string" },
         "isPrimary": { "type": "boolean" },
-        "server": { "type": "string" },
-        "createdAt": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "animeId", "type", "url"]
+    },
+    "UserAction": {
+      "title": "User Action",
+      "description": "Watchlist, favorites, etc.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "animeId": { "type": "string" },
+        "type": { "type": "string", "enum": ["watchlist", "favorite"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["userId", "animeId", "type"]
+    },
+    "History": {
+      "title": "History",
+      "description": "User watch progress",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "animeId": { "type": "string" },
+        "episodeId": { "type": "string" },
+        "progress": { "type": "number" },
+        "duration": { "type": "number" },
         "updatedAt": { "type": "number" }
       },
-      "required": ["contentId", "url", "type", "isPrimary", "createdAt", "updatedAt"]
+      "required": ["userId", "animeId", "progress"]
     }
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": { "$ref": "#/entities/User" },
-      "description": "User profile"
+    "users": {
+      "schema": "User",
+      "description": "User profiles and roles"
     },
-    "/anime/{animeId}": {
-      "schema": { "$ref": "#/entities/Anime" },
-      "description": "Anime library"
+    "anime": {
+      "schema": "Anime",
+      "description": "Anime catalog"
     },
-    "/episodes/{episodeId}": {
-      "schema": { "$ref": "#/entities/Episode" },
-      "description": "Episodes of anime"
+    "anime/{animeId}/episodes": {
+      "schema": "Episode",
+      "description": "Episodes for an anime"
     },
-    "/sources/{sourceId}": {
-      "schema": { "$ref": "#/entities/Source" },
-      "description": "Media sources"
+    "anime/{animeId}/episodes/{episodeId}/sources": {
+      "schema": "Source",
+      "description": "Sources for an episode (or root anime for movie)"
+    },
+    "anime/{animeId}/sources": {
+      "schema": "Source",
+      "description": "Sources for a movie"
+    },
+    "user_actions": {
+      "schema": "UserAction",
+      "description": "Watchlist and favorites."
+    },
+    "history": {
+      "schema": "History",
+      "description": "User watch history."
     }
   }
 }
